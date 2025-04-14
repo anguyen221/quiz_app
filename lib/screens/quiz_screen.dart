@@ -61,6 +61,17 @@ class _QuizScreenState extends State<QuizScreen> {
     });
   }
 
+  void _restartQuiz() {
+    setState(() {
+      _score = 0;
+      _currentQuestionIndex = 0;
+      _answered = false;
+      _selectedAnswer = "";
+      _feedbackText = "";
+    });
+    _loadQuestions();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_loading) {
@@ -72,9 +83,19 @@ class _QuizScreenState extends State<QuizScreen> {
     if (_currentQuestionIndex >= _questions.length) {
       return Scaffold(
         body: Center(
-          child: Text(
-            'Quiz Finished! Your Score: $_score/${_questions.length}',
-            style: TextStyle(fontSize: 20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Quiz Finished! Your Score: $_score/${_questions.length}',
+                style: const TextStyle(fontSize: 20),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _restartQuiz,
+                child: const Text('Restart Quiz'),
+              ),
+            ],
           ),
         ),
       );
@@ -82,7 +103,7 @@ class _QuizScreenState extends State<QuizScreen> {
 
     final question = _questions[_currentQuestionIndex];
     return Scaffold(
-      appBar: AppBar(title: const Text('Quiz App')),
+      appBar: AppBar(title: Text('Quiz App')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
