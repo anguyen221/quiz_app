@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, avoid_print
 
 import 'package:flutter/material.dart';
+import 'package:html/parser.dart' show parse;
 import '../models/question.dart';
 import '../services/api_service.dart';
 
@@ -72,6 +73,11 @@ class _QuizScreenState extends State<QuizScreen> {
     _loadQuestions();
   }
 
+  String _decodeHtml(String htmlString) {
+    var document = parse(htmlString);
+    return document.body?.text ?? "";
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_loading) {
@@ -102,6 +108,8 @@ class _QuizScreenState extends State<QuizScreen> {
     }
 
     final question = _questions[_currentQuestionIndex];
+    final decodedQuestion = _decodeHtml(question.question);
+
     return Scaffold(
       appBar: AppBar(title: Text('Quiz App')),
       body: Padding(
@@ -115,18 +123,21 @@ class _QuizScreenState extends State<QuizScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              question.question,
+              decodedQuestion,
               style: const TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 16),
             ...question.options.map(
-              (option) => ElevatedButton(
-                onPressed: _answered ? null : () => _submitAnswer(option),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                ),
-                child: Text(option),
-              ),
+              (option) {
+                final decodedOption = _decodeHtml(option);
+                return ElevatedButton(
+                  onPressed: _answered ? null : () => _submitAnswer(decodedOption),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                  ),
+                  child: Text(decodedOption),
+                );
+              },
             ),
             const SizedBox(height: 20),
             if (_answered)
